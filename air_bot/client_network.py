@@ -27,7 +27,7 @@ class ClientNetwork:
             self.logger.info(f'Attempting socket connection to {self.address}')
             self.client_socket: Any = socket(AF_INET, SOCK_STREAM)
             self.client_socket.connect(self.address)
-            package: str = self.package_data(self.app_id, self.app_profile, '')
+            package: str = self.package_data(self.app_id, self.app_profile, 'air_bot_connect', '')
             self.client_socket.send(bytes(package, 'utf8'))
             self.logger.info(f'Connection to {self.address} has succeeded')
         except ConnectionRefusedError as connection_refused_error:
@@ -37,12 +37,12 @@ class ClientNetwork:
             self.logger.error(f'Received an OSError: {(str(os_error))}')
             os._exit(1)
 
-    def send_message(self, message) -> NoReturn:
+    def send_message(self, message_category: str, message: str) -> NoReturn:
         if self.client_socket_error:
             os._exit(1)
         else:
             try:
-                packaged_message: str = self.package_data(self.app_id, self.app_profile, message)
+                packaged_message: str = self.package_data(self.app_id, self.app_profile, message_category, message)
                 self.client_socket.send(bytes(packaged_message, 'utf8'))
             except IOError as io_error:
                 self.logger.error(f'Received IOError: {(str(io_error))}')
@@ -65,7 +65,7 @@ class ClientNetwork:
 
     def close_it(self) -> NoReturn:
         time.sleep(0.25)
-        self.send_message('/exit')
+        self.send_message('air_bot_disconnect', '/exit')
         self.client_socket.close()
         self.client_socket = None
 
@@ -78,11 +78,12 @@ class ClientNetwork:
             self.message_history.pop(0)
 
     @staticmethod
-    def package_data(client_id, client_profile, message) -> str:
+    def package_data(client_id: str, client_profile: str, message_category: str, message: str) -> str:
         data_dict: dict = {
             'id': client_id,
             'profile': client_profile,
             'time': datetime.fromtimestamp(time.time()).strftime('%m/%d %H:%M'),
+            'category': message_category,
             'message': message
         }
         return str(data_dict)
