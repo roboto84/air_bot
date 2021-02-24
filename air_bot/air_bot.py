@@ -8,7 +8,7 @@ from typing import Any, NoReturn, List
 from dotenv import load_dotenv
 from apscheduler.schedulers.blocking import BlockingScheduler
 from client_network import ClientNetwork
-from bin.air import Air
+from air_core.air import Air
 
 
 class AirBot:
