@@ -7,8 +7,8 @@ from threading import Thread
 from typing import Any, NoReturn, List
 from dotenv import load_dotenv
 from apscheduler.schedulers.blocking import BlockingScheduler
-from client_network import ClientNetwork
-from air_core.air import Air
+from wh00t_core.library.client_network import ClientNetwork
+from air_core.library.air import Air
 
 
 class AirBot:
@@ -22,8 +22,8 @@ class AirBot:
         self.socket_host: str = socket_host
         self.socket_port: int = socket_port
         self.receive_thread: Any = None
-        self.socket_network: ClientNetwork = ClientNetwork(logging, self.socket_host, self.socket_port,
-                                                           'air_bot', 'app')
+        self.socket_network: ClientNetwork = ClientNetwork(self.socket_host, self.socket_port,
+                                                           'air_bot', 'app', logging)
 
     def __thread_it(self, socket_receive):
         self.receive_thread: Any = Thread(target=socket_receive)
@@ -31,12 +31,13 @@ class AirBot:
 
     def run_job(self) -> NoReturn:
         try:
+            start_time = '2020-10-10 03:05:00'
             self.__send_current_data()
             time.sleep(10)
             self.__send_daily_air_data()
             scheduler: BlockingScheduler = BlockingScheduler()
-            scheduler.add_job(self.__send_current_data, 'interval', seconds=self.data_interval)
-            scheduler.add_job(self.__send_daily_air_data, 'cron', day_of_week='*', hour=4, minute='0')
+            scheduler.add_job(self.__send_current_data, 'interval', start_date=start_time, seconds=self.data_interval)
+            scheduler.add_job(self.__send_daily_air_data, 'cron', day_of_week='*', hour=0, minute='10')
             scheduler.start()
 
         except KeyboardInterrupt:

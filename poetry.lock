@@ -9,9 +9,9 @@ develop = false
 
 [package.source]
 type = "git"
-url = "https://github.com/roboto84/air_core.git"
-reference = "develop"
-resolved_reference = "c1ecbd0f32cf92904e4bb824c50bc6a3470d9038"
+url = 'https://github.com/roboto84/air_core.git'
+reference = 'develop'
+resolved_reference = "4c98d79557de21a8cd42aea75e11fa793aad939f"
 
 [[package]]
 name = "apscheduler"
@@ -183,10 +183,25 @@ category = "dev"
 optional = false
 python-versions = "*"
 
+[[package]]
+name = "wh00t-core"
+version = "0.1.0"
+description = 'Core libraries shared amongst the wh00t connected projects'
+category = "main"
+optional = false
+python-versions = '^3.8'
+develop = false
+
+[package.source]
+type = "git"
+url = 'https://github.com/roboto84/wh00t_core.git'
+reference = 'develop'
+resolved_reference = "be2470a40ed66dd731ae4c04093412ae049a5349"
+
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.8"
-content-hash = "f30ba6e8b137ee53ff783c2a0f7c50d5c48332603ae559dd9baebfcae5597bb1"
+python-versions = '^3.8'
+content-hash = "c061965449bf2b41d3c55c36872fb93e56a7f527c1b01642b34c9916e2837898"
 
 [metadata.files]
 air-core = []
@@ -250,3 +265,4 @@ wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
 ]
+wh00t-core = []
