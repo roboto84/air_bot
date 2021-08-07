@@ -11,7 +11,7 @@ develop = false
 type = "git"
 url = 'https://github.com/roboto84/air_core.git'
 reference = 'develop'
-resolved_reference = "4c98d79557de21a8cd42aea75e11fa793aad939f"
+resolved_reference = "432f76fea2a36edf78c28524c4dd5cb109fd747a"
 
 [[package]]
 name = "apscheduler"

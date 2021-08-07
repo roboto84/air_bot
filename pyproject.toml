@@ -9,8 +9,8 @@ license = 'GPL-3.0-or-later'
 python = '^3.8'
 python-dotenv = '^0.15.0'
 APScheduler = '^3.6.3'
-air-core = {git = 'https://github.com/roboto84/air_core.git', rev = 'develop'}
-wh00t-core = {git = 'https://github.com/roboto84/wh00t_core.git', rev = 'develop'}
+air-core = {git = 'https://github.com/roboto84/air_core.git', branch = 'develop'}
+wh00t-core = {git = 'https://github.com/roboto84/wh00t_core.git', branch = 'develop'}
 
 [tool.poetry.dev-dependencies]
 pytest = '^5.2'
