@@ -185,7 +185,7 @@ python-versions = "*"
 
 [[package]]
 name = "wh00t-core"
-version = "0.1.0"
+version = "0.1.1"
 description = 'Core libraries shared amongst the wh00t connected projects'
 category = "main"
 optional = false
@@ -195,13 +195,13 @@ develop = false
 [package.source]
 type = "git"
 url = 'https://github.com/roboto84/wh00t_core.git'
-reference = 'v0.1.0'
-resolved_reference = "adaf892a039bd59822c0c8d574b0d0b9ab653a1f"
+reference = 'v0.1.1'
+resolved_reference = "611af55665516c25e9dac4c1984e47cae6f9802d"
 
 [metadata]
 lock-version = "1.1"
 python-versions = '^3.8'
-content-hash = "7dd198f5574383e7b29c9b1c6ebbe5a3a5a22b6d4e423b4df6ccf4602a7d59f9"
+content-hash = "07aee41d6d4e0ff3cf02092d465be2f27c774120b79b53bf34ed8138cb9fb6bc"
 
 [metadata.files]
 air-core = []
