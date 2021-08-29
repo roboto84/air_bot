@@ -10,7 +10,7 @@ python = '^3.8'
 python-dotenv = '^0.15.0'
 APScheduler = '^3.6.3'
 air-core = {git = 'https://github.com/roboto84/air_core.git', rev = '432f76fe'}
-wh00t-core = {git = 'https://github.com/roboto84/wh00t_core.git', tag = 'v0.1.1'}
+wh00t-core = {git = 'https://github.com/roboto84/wh00t_core.git', tag = 'v0.2.0'}
 
 [tool.poetry.dev-dependencies]
 pytest = '^5.2'
