@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from apscheduler.schedulers.blocking import BlockingScheduler
 from wh00t_core.library.client_network import ClientNetwork
 from air_core.library.air import Air
+from air_core.library.air_settings import TIMEZONE
 
 
 class AirBot:
@@ -35,7 +36,7 @@ class AirBot:
             self.__send_current_data()
             time.sleep(10)
             self.__send_daily_air_data()
-            scheduler: BlockingScheduler = BlockingScheduler()
+            scheduler: BlockingScheduler = BlockingScheduler(timezone=TIMEZONE)
             scheduler.add_job(self.__send_current_data, 'interval', start_date=start_time, seconds=self.data_interval)
             scheduler.add_job(self.__send_daily_air_data, 'cron', day_of_week='*', hour=0, minute='10')
             scheduler.start()
