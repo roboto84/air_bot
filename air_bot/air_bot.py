@@ -1,93 +1,120 @@
-# Air data sender
+# Air chat bot
 import os
-import sys
-import time
 import logging.config
-from threading import Thread
+from sqlite3 import Row
 from typing import Any, NoReturn, List
 from dotenv import load_dotenv
-from apscheduler.schedulers.blocking import BlockingScheduler
 from wh00t_core.library.client_network import ClientNetwork
-from air_core.library.air import Air
-from air_core.library.air_settings import TIMEZONE
+from air_core.library.air_db import AirDb
 
 
 class AirBot:
-    def __init__(self, logging_object: Any, data_interval: int, live_file: str, forecast_file: str, socket_host: str,
-                 socket_port: int):
-        self.logger: Any = logging_object.getLogger(type(self).__name__)
-        self.logger.setLevel(logging.INFO)
-        self.data_interval: int = data_interval
-        self.live_file: str = live_file
-        self.forecast_file: str = forecast_file
-        self.socket_host: str = socket_host
-        self.socket_port: int = socket_port
-        self.receive_thread: Any = None
-        self.socket_network: ClientNetwork = ClientNetwork(self.socket_host, self.socket_port,
-                                                           'air_bot', 'app', logging)
+    def __init__(self, logging_object: Any, socket_host: str, socket_port: int, sql_lite_db_path: str):
+        self._logger: Any = logging_object.getLogger(type(self).__name__)
+        self._logger.setLevel(logging.INFO)
+        self._chat_key_CURRENT = '/air'
+        self._chat_key_FORECAST = '/forecast'
+        self._air_db: AirDb = AirDb(logging_object, sql_lite_db_path)
+        self._socket_network: ClientNetwork = ClientNetwork(socket_host, socket_port, 'air_bot', 'app', logging)
 
-    def __thread_it(self, socket_receive):
-        self.receive_thread: Any = Thread(target=socket_receive)
-        self.receive_thread.start()
+    @staticmethod
+    def _spaces(number_of_spaces: int):
+        spaces: str = ''
+        for i in range(number_of_spaces):
+            spaces = spaces + ' '
+        return spaces
 
-    def run_job(self) -> NoReturn:
+    @staticmethod
+    def _table_row_to_dict(row: Row) -> dict:
+        data: dict = dict(row)
+        return {
+            'date': data['date'],
+            'temperature': f"{data['temp_value']} {data['temp_unit']}",
+            'temperatureApparent': f"{data['temp_apparent_value']} {data['temp_apparent_unit']}",
+            'moonPhase': data['moon_phase'],
+            'humidity': f"{data['humidity_value']} {data['humidity_unit']}",
+            'dewPoint': f"{data['dew_point_value']} {data['dew_point_unit']}",
+            'weatherCode': data['weather_code'],
+            'precipitationProbability': f"{data['precipitation_probability_value']} "
+                                        f"{data['precipitation_probability_unit']}",
+            'precipitationType': data['precipitation_type'],
+            'pressureSurfaceLevel': f"{data['pressure_surface_level_value']} {data['pressure_surface_level_unit']}",
+            'epaIndex': f"{data['epa_index_value']} {data['epa_index_unit']}",
+            'epaHealthConcern': data['epa_health_concern'],
+            'epaPrimaryPollutant': data['epa_primary_pollutant'],
+            'particulateMatter10': f"{data['particulate_matter10_value']} {data['particulate_matter10_unit']}",
+            'particulateMatter25': f"{data['particulate_matter25_value']} {data['particulate_matter25_unit']}",
+            'pollutantCO': f"{data['pollutant_CO_value']} {data['temp_apparent_unit']}",
+            'pollutantNO2': f"{data['pollutant_NO2_value']} {data['pollutant_NO2_unit']}",
+            'pollutantO3': f"{data['pollutant_O3_value']} {data['pollutant_O3_unit']}",
+            'pollutantSO2': f"{data['pollutant_SO2_value']} {data['pollutant_SO2_unit']}",
+            'grassIndex': data['grass_index'],
+            'treeIndex': data['tree_index'],
+            'weedIndex': data['weed_index']
+        }
+
+    def run_bot(self) -> NoReturn:
         try:
-            start_time = '2020-10-10 03:05:00'
-            self.__send_current_data()
-            time.sleep(10)
-            self.__send_daily_air_data()
-            scheduler: BlockingScheduler = BlockingScheduler(timezone=TIMEZONE)
-            scheduler.add_job(self.__send_current_data, 'interval', start_date=start_time, seconds=self.data_interval)
-            scheduler.add_job(self.__send_daily_air_data, 'cron', day_of_week='*', hour=0, minute='10')
-            scheduler.start()
-
+            self._socket_network.sock_it()
+            self._socket_network.receive(self._receive_message_callback)
         except KeyboardInterrupt:
-            self.logger.warning('Received a KeyboardInterrupt... exiting process')
-            sys.exit()
+            self._logger.info('Received a KeyboardInterrupt... closing bot')
+            exit()
 
-    def __send_current_data(self) -> NoReturn:
-        data: str = self.get_data('current', self.live_file)[0].strip()
-        self.__send_weather_data(self.structure_data(data), ['air_weather', 'air_pollution', 'air_pollen'])
+    def _receive_message_callback(self, package: dict) -> bool:
+        if ('id' in package) and (package['id'] not in ['wh00t_server', 'air_bot']) and ('message' in package):
+            if 'category' in package and package['category'] == 'chat_message' and \
+                    isinstance(package['message'], str) and self._chat_key_CURRENT in package['message']:
+                self._send_chat_weather(self._chat_key_CURRENT)
+            elif 'category' in package and package['category'] == 'chat_message' and \
+                    isinstance(package['message'], str) and self._chat_key_FORECAST in package['message']:
+                self._send_chat_weather(self._chat_key_FORECAST)
+        return True
 
-    def __send_daily_air_data(self) -> NoReturn:
-        data: List[str] = self.get_data('daily', self.forecast_file)
-        for forecast in data:
-            self.__send_weather_data(self.structure_data(forecast.strip()),
-                                     ['air_weather_forecast', 'air_pollution_forecast', 'air_pollen_forecast'])
-            time.sleep(5)
+    def _send_chat_weather(self, request_type: str):
+        weather_summary: str = 'Sorry, unable to compute'
+        if request_type == self._chat_key_CURRENT:
+            self._socket_network.send_message('chat_message', f'Ok, getting current weather 🤔')
+            weather_summary: str = self._current_weather_summary(self._get_current_data())
+        elif request_type == self._chat_key_FORECAST:
+            self._socket_network.send_message('chat_message', f'Ok, getting weather forecast 🤔')
+            weather_summary: str = self._forecast_weather_summary(self._get_forecast_data())
+        self._socket_network.send_message('chat_message', weather_summary)
 
-    def __send_weather_data(self, weather: Air, weather_array_categories: List[str]) -> NoReturn:
-        weather_array: List[dict] = [weather.get_basic_weather(), weather.get_pollution(), weather.get_pollen()]
-        self.socket_network.sock_it()
-        self.__thread_it(self.socket_network.receive)
+    def _get_current_data(self) -> dict:
+        current_weather: list[Row] = self._air_db.get_current_weather()
+        return self._table_row_to_dict(current_weather[0])
 
-        for index, weather_portion in enumerate(weather_array):
-            time.sleep(2)
-            self.logger.info(f'Sending {weather_array_categories[index]}: {weather_portion}')
-            self.socket_network.send_message(weather_array_categories[index], str(weather_portion))
-        self.socket_network.close_it()
+    def _get_forecast_data(self) -> list[dict]:
+        weather_forecast: list[Row] = self._air_db.get_forecast_weather()
+        weather_forecast_dicts: list[dict] = [self._table_row_to_dict(row) for row in weather_forecast]
+        return weather_forecast_dicts
+
+    def _current_weather_summary(self, current_weather: dict) -> str:
+        weather_space: int = 11
+        current_weather: dict = current_weather
+        try:
+            return f'\n🌩️  Today: {current_weather["date"]}\n' \
+                   f'{self._spaces(weather_space)} summary: {current_weather["weatherCode"]}\n' \
+                   f'{self._spaces(weather_space)} moon: {current_weather["moonPhase"]}\n' \
+                   f'{self._spaces(weather_space)} temp: {current_weather["temperature"]}' \
+                   f'{self._spaces(weather_space)} temp apparent: {current_weather["temperatureApparent"]}\n' \
+                   f'{self._spaces(weather_space)} humidity: {current_weather["humidity"]}' \
+                   f'{self._spaces(weather_space)} dewPoint: {current_weather["dewPoint"]}\n' \
+                   f'{self._spaces(weather_space)} rain prob.: {current_weather["precipitationProbability"]}' \
+                   f'{self._spaces(weather_space)} rain type: {current_weather["precipitationType"]}\n' \
+                   f'{self._spaces(weather_space)} pressure: {current_weather["pressureSurfaceLevel"]}\n' \
+                   f'{self._spaces(weather_space)} epa index: {current_weather["epaIndex"]}' \
+                   f'{self._spaces(weather_space)} epa health concern: {current_weather["epaHealthConcern"]}\n' \
+                   f'{self._spaces(weather_space)} grass index: {current_weather["grassIndex"]}' \
+                   f'{self._spaces(weather_space)} tree index: {current_weather["treeIndex"]}' \
+                   f'{self._spaces(weather_space)} weed index: {current_weather["weedIndex"]}'
+        except TypeError as type_error:
+            print(f'Received error (chat_message_builder): {str(type_error)}')
 
     @staticmethod
-    def structure_data(data: str) -> Air:
-        data_array: List[str] = data.split(',')
-        new_air = Air('imperial')
-        new_air.set_weather_with_array(data_array)
-        return new_air
-
-    @staticmethod
-    def get_data(data_type: str, file_address: str) -> List[str]:
-        with open(file_address, 'r') as data:
-            num_lines: int = sum(1 for line in data)
-
-        with open(file_address, 'r') as infile:
-            lines: List[str] = infile.readlines()
-
-        if data_type == 'daily':
-            return lines[1:]
-        else:
-            for pos, line in enumerate(lines):
-                if pos == num_lines - 1:
-                    return [line]
+    def _forecast_weather_summary(forecast_weather: List[dict]) -> str:
+        return '... coming soon'
 
 
 if __name__ == '__main__':
@@ -97,16 +124,13 @@ if __name__ == '__main__':
 
     try:
         load_dotenv()
-        SEND_DATA_INTERVAL: int = int(os.getenv('SEND_DATA_INTERVAL'))
-        LIVE_FILE: str = os.getenv('LIVE_DATA_FILE')
-        FORECAST_FILE: str = os.getenv('FORECAST_DATA_FILE')
         HOST_SERVER_ADDRESS: str = os.getenv('HOST_SERVER_ADDRESS')
         SOCKET_SERVER_PORT: int = int(os.getenv('SOCKET_SERVER_PORT'))
+        SQL_LITE_DB: str = os.getenv('SQL_LITE_DB')
 
-        print(f'\nBarometric data sender will run every {SEND_DATA_INTERVAL} seconds:')
-        air_bot = AirBot(logging, SEND_DATA_INTERVAL, LIVE_FILE, FORECAST_FILE, HOST_SERVER_ADDRESS,
-                         SOCKET_SERVER_PORT)
-        air_bot.run_job()
+        print(f'\nAir bot:')
+        air_bot = AirBot(logging, HOST_SERVER_ADDRESS, SOCKET_SERVER_PORT, SQL_LITE_DB)
+        air_bot.run_bot()
     except TypeError:
         logger.error('Received TypeError: Check that the .env project file is configured correctly')
         exit()
