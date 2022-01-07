@@ -13,8 +13,8 @@ willow-core = {git = 'https://github.com/roboto84/willow_core.git', rev = '59d8f
 [package.source]
 type = "git"
 url = 'https://github.com/roboto84/air_core.git'
-reference = '7acef29b'
-resolved_reference = "7acef29bc290a2e60d434be36d97d8de8b6bbb21"
+reference = '56d50494'
+resolved_reference = "56d504942277f7bd9abf71fd1183631e496d9f3c"
 
 [[package]]
 name = "atomicwrites"
@@ -169,7 +169,7 @@ resolved_reference = "59d8f44bce1bbda74e6e6d82a179a78f36cdfb3c"
 [metadata]
 lock-version = "1.1"
 python-versions = '^3.9'
-content-hash = "769cd2656f73db4a5a44a197858f0de5c988c4a0765203eda15882dc20778bec"
+content-hash = "c1d49670397f80bce8d67e180d7909cb7fe4fbde7612299d7b657571f18083ef"
 
 [metadata.files]
 air-core = []
