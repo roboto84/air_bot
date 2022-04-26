@@ -13,8 +13,8 @@ willow-core = {git = 'https://github.com/roboto84/willow_core.git', rev = '59d8f
 [package.source]
 type = "git"
 url = 'https://github.com/roboto84/air_core.git'
-reference = '56d50494'
-resolved_reference = "56d504942277f7bd9abf71fd1183631e496d9f3c"
+reference = '55beff2'
+resolved_reference = "55beff221bfa0f1763dbbbedd7c5d3b66b9e39e2"
 
 [[package]]
 name = "atomicwrites"
@@ -86,14 +86,14 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "pyparsing"
-version = "3.0.6"
-description = "Python parsing module"
+version = "3.0.8"
+description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.6.8"
 
 [package.extras]
-diagrams = ["jinja2", "railroad-diagrams"]
+diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "pytest"
@@ -138,18 +138,18 @@ python-versions = "*"
 
 [[package]]
 name = "wh00t-core"
-version = "0.4.1"
+version = "0.4.3"
 description = 'Core libraries shared amongst the wh00t connected projects'
 category = "main"
 optional = false
-python-versions = '^3.8'
+python-versions = '^3.10'
 develop = false
 
 [package.source]
 type = "git"
 url = 'https://github.com/roboto84/wh00t_core.git'
-reference = 'v0.4.1'
-resolved_reference = "c123c96c5f2e87f9a2c3ec870dcb5d71036135ac"
+reference = 'v0.4.3'
+resolved_reference = "5bb2a23bbf5fc231243e745c719d5add1fabb4ea"
 
 [[package]]
 name = "willow-core"
@@ -168,8 +168,8 @@ resolved_reference = "59d8f44bce1bbda74e6e6d82a179a78f36cdfb3c"
 
 [metadata]
 lock-version = "1.1"
-python-versions = '^3.9'
-content-hash = "c1d49670397f80bce8d67e180d7909cb7fe4fbde7612299d7b657571f18083ef"
+python-versions = '^3.10'
+content-hash = "6b7a98b09c45a987836be8dc7a4c87fb32e0e99ba73272390a99db4884ff2f03"
 
 [metadata.files]
 air-core = []
@@ -202,8 +202,8 @@ py = [
     {file = "py-1.11.0.tar.gz", hash = "sha256:51c75c4126074b472f746a24399ad32f6053d1b34b68d2fa41e558e6f4a98719"},
 ]
 pyparsing = [
-    {file = "pyparsing-3.0.6-py3-none-any.whl", hash = "sha256:04ff808a5b90911829c55c4e26f75fa5ca8a2f5f36aa3a51f68e27033341d3e4"},
-    {file = "pyparsing-3.0.6.tar.gz", hash = "sha256:d9bdec0013ef1eb5a84ab39a3b3868911598afa494f5faa038647101504e2b81"},
+    {file = "pyparsing-3.0.8-py3-none-any.whl", hash = "sha256:ef7b523f6356f763771559412c0d7134753f037822dad1b16945b7b846f7ad06"},
+    {file = "pyparsing-3.0.8.tar.gz", hash = "sha256:7bf433498c016c4314268d95df76c81b842a4cb2b276fa3312cfb1e1d85f6954"},
 ]
 pytest = [
     {file = "pytest-5.4.3-py3-none-any.whl", hash = "sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1"},
