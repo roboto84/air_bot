@@ -12,7 +12,7 @@ air-core = {git = 'https://github.com/roboto84/air_core.git', rev = '0a46bfd'}
 wh00t-core = {git = 'https://github.com/roboto84/wh00t_core.git', tag = 'v0.4.4'}
 
 [tool.poetry.dev-dependencies]
-pytest = '^5.2'
+pytest = '^6.2.5'
 
 [build-system]
 requires = ['poetry-core>=1.0.0']
