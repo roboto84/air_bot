@@ -47,10 +47,8 @@ class AirBot:
     def _send_chat_weather(self, request_type: str):
         weather_summary: str = 'Sorry, unable to compute'
         if request_type == self._current_weather_key:
-            self._socket_network.send_message('chat_message', f'Ok, getting current weather 🤔')
             weather_summary: str = AirBotUtils.current_weather_summary(self._air_db.get_current_weather())
         elif request_type == self._weather_forecast_key:
-            self._socket_network.send_message('chat_message', f'Ok, getting weather forecast 🤔')
             weather_summary: str = AirBotUtils.forecast_weather_summary(self._air_db.get_weather_forecast())
         self._socket_network.send_message('chat_message', weather_summary)
 

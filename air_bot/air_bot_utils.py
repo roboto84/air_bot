@@ -18,10 +18,10 @@ class AirBotUtils:
 
     @staticmethod
     def forecast_weather_summary(forecast_weather: list[dict]) -> str:
-        title_space: int = 5
+        title_space: int = 0
         forecasts: str = ''.join(f'{AirBotUtils.weather_summary("forecast", forecast)}\n'
                                  for index, forecast in enumerate(forecast_weather) if index > 0)
-        return f'\n{AirBotUtils.spaces(title_space)}{len(forecast_weather)-1} Day Forecast\n{forecasts}'
+        return f'{AirBotUtils.spaces(title_space)}{len(forecast_weather)-1} Day Forecast\n{forecasts}'
 
     @staticmethod
     def time_format_morph(time_stamp: str) -> str:
@@ -49,7 +49,7 @@ class AirBotUtils:
             moon_data = f', with a {weather_data["moonPhase"]} Moon'
 
         try:
-            return f'\n{AirBotUtils.weather_emoji(weather_data["weatherCode"])}️  {time} | ' \
+            return f'{AirBotUtils.weather_emoji(weather_data["weatherCode"])}️  {time} | ' \
                    f'{weather_data["weatherCode"]}, ' \
                    f'feels like {weather_data["temperatureApparent"]} {weather_units["temperatureApparent"]}' \
                    f'{moon_data}\n' \
