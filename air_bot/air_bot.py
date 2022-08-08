@@ -5,6 +5,7 @@ from typing import Any
 from dotenv import load_dotenv
 from air_bot_utils import AirBotUtils
 from wh00t_core.library.client_network import ClientNetwork
+from wh00t_core.library.network_commons import NetworkCommons
 from air_core.library.air_db import AirDb
 
 
@@ -16,6 +17,7 @@ class AirBot:
         self._current_weather_key = 'current'
         self._weather_forecast_key = 'forecast'
         self._air_db: AirDb = AirDb(logging_object, sql_lite_db_path)
+        self._network_commons: NetworkCommons = NetworkCommons()
         self._socket_network: ClientNetwork = ClientNetwork(socket_host, socket_port, 'air_bot', 'app', logging)
 
     def run_bot(self) -> None:
@@ -29,7 +31,7 @@ class AirBot:
     def _receive_message_callback(self, package: dict) -> bool:
         if ('id' in package) and (package['id'] not in ['wh00t_server', 'air_bot']) and ('message' in package):
             if 'category' in package and \
-                    package['category'] == 'chat_message' and \
+                    package['category'] == self._network_commons.get_chat_message_category() and \
                     isinstance(package['message'], str) and \
                     self._chat_key in package['message'] and \
                     package['message'].find(self._chat_key) == 0:
@@ -41,7 +43,10 @@ class AirBot:
                         air_command.replace(self._weather_forecast_key, '') == ' ':
                     self._send_chat_weather(self._weather_forecast_key)
                 else:
-                    self._socket_network.send_message('chat_message', AirBotUtils.air_help_message())
+                    self._socket_network.send_message(
+                        self._network_commons.get_chat_message_category(),
+                        AirBotUtils.air_help_message()
+                    )
         return True
 
     def _send_chat_weather(self, request_type: str):
@@ -50,7 +55,10 @@ class AirBot:
             weather_summary: str = AirBotUtils.current_weather_summary(self._air_db.get_current_weather())
         elif request_type == self._weather_forecast_key:
             weather_summary: str = AirBotUtils.forecast_weather_summary(self._air_db.get_weather_forecast())
-        self._socket_network.send_message('chat_message', weather_summary)
+        self._socket_network.send_message(
+            self._network_commons.get_chat_message_category(),
+            weather_summary
+        )
 
 
 if __name__ == '__main__':
