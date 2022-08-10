@@ -129,6 +129,14 @@ python-versions = "*"
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "pytz"
+version = "2022.1"
+description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "toml"
 version = "0.10.2"
 description = "Python Library for Tom's Obvious, Minimal Language"
@@ -172,7 +180,7 @@ resolved_reference = "646a99fa75cc5902ad8d9c8f1fe3f54c3ed13eb0"
 [metadata]
 lock-version = "1.1"
 python-versions = '^3.10'
-content-hash = "71eeae29e33cfec100fc8e79083197781546ae4de47ee8654d2f55fd9e7bca7d"
+content-hash = "8d108146f0ffb3b145144b4039fb5cfbc52d02843413e99edcf278e87c2fec6b"
 
 [metadata.files]
 air-core = []
@@ -209,6 +217,10 @@ pytest = [
 python-dotenv = [
     {file = "python-dotenv-0.15.0.tar.gz", hash = "sha256:587825ed60b1711daea4832cf37524dfd404325b7db5e25ebe88c495c9f807a0"},
     {file = "python_dotenv-0.15.0-py2.py3-none-any.whl", hash = "sha256:0c8d1b80d1a1e91717ea7d526178e3882732420b03f08afea0406db6402e220e"},
+]
+pytz = [
+    {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
+    {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},

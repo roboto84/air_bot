@@ -10,12 +10,13 @@ from air_core.library.air_db import AirDb
 
 
 class AirBot:
-    def __init__(self, logging_object: Any, socket_host: str, socket_port: int, sql_lite_db_path: str):
+    def __init__(self, logging_object: Any, socket_host: str, socket_port: int, sql_lite_db_path: str, timezone: str):
         self._logger: Any = logging_object.getLogger(type(self).__name__)
         self._logger.setLevel(logging.INFO)
         self._chat_key = '/air'
         self._current_weather_key = 'current'
         self._weather_forecast_key = 'forecast'
+        self._timezone = timezone
         self._air_db: AirDb = AirDb(logging_object, sql_lite_db_path)
         self._network_commons: NetworkCommons = NetworkCommons()
         self._socket_network: ClientNetwork = ClientNetwork(socket_host, socket_port, 'air_bot', 'app', logging)
@@ -24,6 +25,9 @@ class AirBot:
         try:
             self._socket_network.sock_it()
             self._socket_network.receive(self._receive_message_callback)
+        except TypeError as run_type_error:
+            logger.error(f'Received TypeError: {run_type_error}')
+            exit()
         except KeyboardInterrupt:
             self._logger.info('Received a KeyboardInterrupt... closing bot')
             exit()
@@ -52,9 +56,15 @@ class AirBot:
     def _send_chat_weather(self, request_type: str):
         weather_summary: str = 'Sorry, unable to compute'
         if request_type == self._current_weather_key:
-            weather_summary: str = AirBotUtils.current_weather_summary(self._air_db.get_current_weather())
+            weather_summary: str = AirBotUtils.current_weather_summary(
+                self._air_db.get_current_weather(),
+                self._timezone
+            )
         elif request_type == self._weather_forecast_key:
-            weather_summary: str = AirBotUtils.forecast_weather_summary(self._air_db.get_weather_forecast())
+            weather_summary: str = AirBotUtils.forecast_weather_summary(
+                self._air_db.get_weather_forecast(),
+                self._timezone
+            )
         self._socket_network.send_message(
             self._network_commons.get_chat_message_category(),
             weather_summary
@@ -71,10 +81,11 @@ if __name__ == '__main__':
         HOST_SERVER_ADDRESS: str = os.getenv('HOST_SERVER_ADDRESS')
         SOCKET_SERVER_PORT: int = int(os.getenv('SOCKET_SERVER_PORT'))
         SQL_LITE_DB: str = os.getenv('SQL_LITE_DB')
+        TIMEZONE: str = os.getenv('TIMEZONE')
 
         print(f'\nAir bot:')
-        air_bot = AirBot(logging, HOST_SERVER_ADDRESS, SOCKET_SERVER_PORT, SQL_LITE_DB)
+        air_bot = AirBot(logging, HOST_SERVER_ADDRESS, SOCKET_SERVER_PORT, SQL_LITE_DB, TIMEZONE)
         air_bot.run_bot()
-    except TypeError:
-        logger.error('Received TypeError: Check that the .env project file is configured correctly')
+    except TypeError as type_error:
+        logger.error(f'Received TypeError: Check that the .env project file is configured correctly... {type_error}')
         exit()
